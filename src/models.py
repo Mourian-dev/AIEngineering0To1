@@ -2,12 +2,14 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Optional, Dict
 
+from src.enums import Provider
+
 @dataclass
 class ChatCompletionResponse:
     success: bool
     content: str
     model: str
-    provider: "Provider"
+    provider: Provider
     tokens_input: int
     tokens_output: int
     cost: float

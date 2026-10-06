@@ -5,6 +5,7 @@ class Provider(str, Enum):
     OLLAMA = "ollama"
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
+    NVIDIA = "nvidia"
 
     @classmethod
     def get_all(cls) -> List[Provider]:
