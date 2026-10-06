@@ -1,5 +1,4 @@
 import argparse
-import os
 import sys
 from typing import NoReturn, List, Dict
 
@@ -10,6 +9,7 @@ from src.provider.openai_provider import OpenAIProvider
 from src.provider.ollama_provider import OllamaProvider
 from src.provider.nvidia_provider import NvidiaProvider
 from src.provider.factory import ProviderFactory
+from src.config.settings import Settings
 
 ProviderFactory.register(Provider.OLLAMA, OllamaProvider)
 ProviderFactory.register(Provider.OPENAI, OpenAIProvider)
@@ -48,28 +48,30 @@ def fail(message: str) -> NoReturn:
 
 def main() -> None:
     parser = build_parser()
+    settings: Settings = Settings.from_env()
     args = parser.parse_args()
     provider_type = Provider(args.provider)
 
     api_key = None
     if provider_type is Provider.OPENAI:
-        api_key = os.environ.get("OPENAI_API_KEY")
+        api_key = settings.openai_api_key
         if not api_key:
             fail("OPENAI_API_KEY is not set in the environment.")
     elif provider_type is Provider.ANTHROPIC:
-        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        api_key = settings.anthropic_api_key
         if not api_key:
             fail("ANTHROPIC_API_KEY is not set in the environment.")
     elif provider_type is Provider.NVIDIA:
-        api_key = os.environ.get("NVIDIA_API_KEY")
+        api_key = settings.nvidia_api_key
         if not api_key:
-            fail("NVIDIA_API_KEY is not set in th eenvironment")
+            fail("NVIDIA_API_KEY is not set in th environment")
 
     create_kwargs: dict[str, str] = {}
     if api_key is not None:
         create_kwargs["api_key"] = api_key
     if args.model is not None:
         create_kwargs["model"] = args.model
+
     provider = ProviderFactory.create(provider_type, **create_kwargs)
 
     client:LLMClient = LLMClient(provider=provider)
